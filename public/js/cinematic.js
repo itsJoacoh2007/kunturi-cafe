@@ -57,22 +57,60 @@
       els.video.loop = true;
       els.video.muted = true;
       els.video.setAttribute('muted', '');
-      var mobilePlay = els.video.play();
-      if (mobilePlay && typeof mobilePlay.catch === 'function') {
-        mobilePlay.catch(function () {
-          // Si el navegador igual bloquea el autoplay, se reintenta con el
-          // primer toque/scroll del usuario (eso sí cuenta como gesto válido).
-          var retry = function () {
-            els.video.play().catch(function () {});
-            window.removeEventListener('touchstart', retry);
-            window.removeEventListener('scroll', retry);
-          };
-          window.addEventListener('touchstart', retry, { passive: true, once: true });
-          window.addEventListener('scroll', retry, { passive: true, once: true });
-        });
-      }
+      attemptMobilePlay();
     }
     return;
+  }
+
+  // ---- Reproducción en móvil: a prueba de bloqueos de autoplay ----
+  // Algunos navegadores/celulares igual bloquean el autoplay silencioso (modo
+  // de ahorro de datos o batería, ajustes de "no reproducir automático",
+  // etc.), sin importar que el video venga muted+playsinline. En vez de
+  // confiar solo en que play() funcione o en reintentos silenciosos que
+  // capaz nunca se disparan con el gesto correcto, se revisa de verdad si
+  // quedó reproduciéndose; si no, aparece un botón visible sobre el video
+  // para que el usuario lo inicie con un toque directo — eso sí cuenta como
+  // gesto válido en cualquier navegador, así el video nunca queda "roto"
+  // sin ninguna forma de arrancarlo.
+  var tapToPlayBtn = null;
+  function attemptMobilePlay() {
+    var playPromise = els.video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(function () {});
+    }
+    window.setTimeout(function () {
+      if (els.video.paused) showTapToPlay();
+    }, 700);
+
+    var retryOnGesture = function () {
+      els.video.play().catch(function () {});
+    };
+    window.addEventListener('touchstart', retryOnGesture, { passive: true, once: true });
+    window.addEventListener('scroll', retryOnGesture, { passive: true, once: true });
+  }
+
+  function showTapToPlay() {
+    if (tapToPlayBtn) return;
+    var art = document.querySelector('.cinematic-art-3d');
+    if (!art) return;
+    tapToPlayBtn = document.createElement('button');
+    tapToPlayBtn.type = 'button';
+    tapToPlayBtn.className = 'cinematic-tap-play';
+    tapToPlayBtn.setAttribute('aria-label', 'Reproducir video');
+    tapToPlayBtn.innerHTML = '▶ <span>Toca para reproducir</span>';
+    tapToPlayBtn.addEventListener('click', function () {
+      var p = els.video.play();
+      if (p && typeof p.then === 'function') { p.then(hideTapToPlay).catch(function () {}); }
+      else { hideTapToPlay(); }
+    });
+    art.appendChild(tapToPlayBtn);
+    els.video.addEventListener('playing', hideTapToPlay);
+  }
+
+  function hideTapToPlay() {
+    if (!tapToPlayBtn) return;
+    tapToPlayBtn.remove();
+    tapToPlayBtn = null;
   }
 
   if (els.video) {
