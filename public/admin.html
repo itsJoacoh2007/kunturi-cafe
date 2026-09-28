@@ -1,0 +1,213 @@
+<title>Panel Kunturi</title>
+<meta name="description" content="Panel de administración de Kunturi Café.">
+<link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/admin.css">
+
+<div id="loginScreen" class="login-screen">
+  <form id="loginForm" class="login-card card">
+    <img src="/img/logo.svg" alt="" width="56" height="56">
+    <h1>Panel del local</h1>
+    <p class="login-sub">Ingresa la contraseña para administrar el menú y los pedidos.</p>
+    <div class="field">
+      <label for="loginPassword">Contraseña</label>
+      <input id="loginPassword" type="password" required autocomplete="current-password">
+    </div>
+    <p class="form-error" id="loginError" hidden></p>
+    <button class="btn btn-primary btn-block" type="submit">Entrar</button>
+    <a class="back-link" href="/">← Volver a la tienda</a>
+  </form>
+</div>
+
+<div id="dashboard" class="dashboard" hidden>
+  <aside class="admin-sidebar">
+    <div class="admin-brand">
+      <img src="/img/logo.svg" alt="" width="34" height="34">
+      <span>Kunturi</span>
+    </div>
+    <nav class="admin-nav">
+      <button class="admin-nav-btn active" data-tab="orders">Pedidos</button>
+      <button class="admin-nav-btn" data-tab="resumen">Resumen</button>
+      <button class="admin-nav-btn" data-tab="menu">Menú</button>
+      <button class="admin-nav-btn" data-tab="inventory">Inventario</button>
+      <button class="admin-nav-btn" data-tab="categories">Categorías</button>
+      <button class="admin-nav-btn" data-tab="settings">Ajustes</button>
+    </nav>
+    <a class="back-link" href="/" target="_blank">Ver tienda ↗</a>
+    <button class="btn btn-ghost btn-sm" id="logoutBtn" type="button">Cerrar sesión</button>
+  </aside>
+
+  <main class="admin-main">
+    <section class="admin-panel" id="panel-orders">
+      <div class="panel-header">
+        <h2>Pedidos</h2>
+        <div class="order-filter" id="orderFilter">
+          <button class="chip active" data-status="">Todos</button>
+          <button class="chip" data-status="pendiente">Pendientes</button>
+          <button class="chip" data-status="preparando">Preparando</button>
+          <button class="chip" data-status="listo">Listos</button>
+          <button class="chip" data-status="entregado">Entregados</button>
+        </div>
+      </div>
+      <div id="ordersList" class="orders-list"></div>
+    </section>
+
+    <section class="admin-panel" id="panel-resumen" hidden>
+      <div class="panel-header">
+        <h2>Resumen</h2>
+      </div>
+      <p class="panel-hint">Aquí ves de un vistazo lo que necesita tu atención hoy. No tienes que revisar nada más.</p>
+      <div class="resumen-grid">
+        <div class="card resumen-card">
+          <span class="resumen-number" id="resumenPendingCount">0</span>
+          <span class="resumen-label">Pedidos pendientes</span>
+        </div>
+        <div class="card resumen-card">
+          <span class="resumen-number" id="resumenLowStockCount">0</span>
+          <span class="resumen-label">Ingredientes bajos o agotados</span>
+        </div>
+        <div class="card resumen-card">
+          <span class="resumen-number" id="resumenNoMediaCount">0</span>
+          <span class="resumen-label">Productos sin foto ni video</span>
+        </div>
+      </div>
+      <div class="resumen-lists">
+        <div class="card resumen-list-card">
+          <h3>Stock que necesita reposición</h3>
+          <div id="resumenLowStockList" class="resumen-list"></div>
+        </div>
+        <div class="card resumen-list-card">
+          <h3>Sugerencia: agrégales foto o video</h3>
+          <p class="panel-hint" style="margin-top:0">Los productos con foto se venden mejor. Anda a la pestaña <strong>Menú</strong> y edítalos cuando puedas.</p>
+          <div id="resumenNoMediaList" class="resumen-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-panel" id="panel-menu" hidden>
+      <div class="panel-header">
+        <h2>Menú</h2>
+        <button class="btn btn-primary btn-sm" id="newItemBtn">+ Nuevo producto</button>
+      </div>
+      <div id="menuManageList"></div>
+    </section>
+
+    <section class="admin-panel" id="panel-inventory" hidden>
+      <div class="panel-header">
+        <h2>Inventario</h2>
+      </div>
+      <p class="panel-hint">Lleva la cuenta de tus ingredientes. Si algo llega a 0, el producto que lo usa se oculta solo de la tienda hasta que repongas.</p>
+      <form id="newStockForm" class="inline-form stock-inline-form">
+        <input id="newStockName" placeholder="Ingrediente (ej: Leche)" required>
+        <input id="newStockUnit" placeholder="Unidad (L, kg, un...)" style="max-width:120px">
+        <input id="newStockQty" type="number" min="0" step="0.5" placeholder="Cantidad" style="max-width:120px">
+        <button class="btn btn-primary btn-sm" type="submit">Agregar</button>
+      </form>
+      <div id="stockList" class="stock-list"></div>
+    </section>
+
+    <section class="admin-panel" id="panel-categories" hidden>
+      <div class="panel-header">
+        <h2>Categorías</h2>
+      </div>
+      <form id="newCategoryForm" class="inline-form">
+        <input id="newCategoryName" placeholder="Nombre de la nueva categoría" required>
+        <button class="btn btn-primary btn-sm" type="submit">Agregar</button>
+      </form>
+      <div id="categoriesList" class="categories-list"></div>
+    </section>
+
+    <section class="admin-panel" id="panel-settings" hidden>
+      <div class="panel-header"><h2>Ajustes del local</h2></div>
+      <form id="settingsForm" class="settings-form card">
+        <div class="field"><label for="setCafeName">Nombre del café</label><input id="setCafeName"></div>
+        <div class="field"><label for="setTagline">Frase / tagline</label><input id="setTagline"></div>
+        <div class="field"><label for="setWhatsapp">WhatsApp (con código de país, solo números)</label><input id="setWhatsapp" placeholder="56912345678"></div>
+        <div class="field"><label for="setAddress">Dirección</label><input id="setAddress"></div>
+        <div class="field"><label for="setHours">Horario</label><input id="setHours"></div>
+        <div class="field"><label for="setInstagram">Usuario de Instagram</label><input id="setInstagram" placeholder="kunturi.cafe"></div>
+        <p class="form-success" id="settingsSuccess" hidden>Guardado ✓</p>
+        <button class="btn btn-primary" type="submit">Guardar ajustes</button>
+      </form>
+
+      <h3 class="panel-subtitle">Cambiar contraseña</h3>
+      <form id="passwordForm" class="settings-form card">
+        <div class="field"><label for="pwCurrent">Contraseña actual</label><input id="pwCurrent" type="password" required></div>
+        <div class="field"><label for="pwNew">Nueva contraseña</label><input id="pwNew" type="password" required minlength="6"></div>
+        <p class="form-error" id="passwordError" hidden></p>
+        <p class="form-success" id="passwordSuccess" hidden>Contraseña actualizada ✓</p>
+        <button class="btn btn-outline" type="submit">Actualizar contraseña</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<!-- Modal producto -->
+<div class="modal-overlay" id="itemModalOverlay" hidden>
+  <div class="modal item-modal" role="dialog" aria-label="Producto">
+    <div class="modal-header">
+      <h3 id="itemModalTitle">Nuevo producto</h3>
+      <button class="icon-btn" id="itemModalClose">✕</button>
+    </div>
+    <form class="modal-body" id="itemForm">
+      <div class="field"><label for="itemName">Nombre</label><input id="itemName" required></div>
+      <div class="field"><label for="itemCategory">Categoría</label><select id="itemCategory" required></select></div>
+      <div class="field"><label for="itemDescription">Descripción</label><textarea id="itemDescription" rows="2"></textarea></div>
+      <div class="field"><label for="itemPrice">Precio (CLP)</label><input id="itemPrice" type="number" min="0" step="50" required></div>
+      <div class="field checkbox-field">
+        <label><input type="checkbox" id="itemAvailable" checked> Disponible</label>
+      </div>
+
+      <div class="field media-editor">
+        <label>Fotos y video</label>
+        <p class="field-hint">💡 Sugerencia: fotos con luz natural y fondo simple funcionan mejor. Un video corto (5-10 segundos) sirviendo o preparando la bebida queda muy bien.</p>
+        <div id="itemMediaGrid" class="media-grid"></div>
+        <div class="media-upload-buttons">
+          <label class="btn btn-outline btn-sm file-btn">+ Foto<input id="itemPhotoFile" type="file" accept="image/png,image/jpeg,image/webp" hidden></label>
+          <label class="btn btn-outline btn-sm file-btn">+ Video<input id="itemVideoFile" type="file" accept="video/mp4,video/webm,video/quicktime" hidden></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Ingredientes</label>
+        <p class="field-hint">Referenciales, según receta típica. Escribe uno y presiona Enter.</p>
+        <div id="itemIngredientsChips" class="chip-editor"></div>
+        <input id="itemIngredientsInput" placeholder="Ej: Espresso, Leche vaporizada…" class="chip-input-field">
+      </div>
+
+      <div class="field">
+        <label>Alérgenos</label>
+        <div class="allergen-quickadd">
+          <button type="button" class="chip-quickadd" data-allergen="Lácteos">Lácteos</button>
+          <button type="button" class="chip-quickadd" data-allergen="Gluten">Gluten</button>
+          <button type="button" class="chip-quickadd" data-allergen="Huevo">Huevo</button>
+          <button type="button" class="chip-quickadd" data-allergen="Frutos secos">Frutos secos</button>
+        </div>
+        <div id="itemAllergensChips" class="chip-editor"></div>
+        <input id="itemAllergensInput" placeholder="Otro alérgeno…" class="chip-input-field">
+      </div>
+
+      <div class="field">
+        <label>Ingredientes de stock que consume</label>
+        <p class="field-hint">Márcalos para que el producto se oculte solo si se acaba alguno.</p>
+        <div id="itemStockLinks" class="stock-links-editor"></div>
+      </div>
+
+      <div class="variant-editor">
+        <div class="panel-header">
+          <label style="margin:0">Variantes (tamaño, sabores, leche, etc.)</label>
+          <button type="button" class="btn btn-ghost btn-sm" id="addVariantGroupBtn">+ Grupo de opciones</button>
+        </div>
+        <div id="variantGroupsEditor"></div>
+      </div>
+
+      <p class="form-error" id="itemFormError" hidden></p>
+      <div class="modal-footer" style="padding:0; margin-top:10px;">
+        <button type="button" class="btn btn-ghost btn-sm" id="deleteItemBtn" hidden>Eliminar producto</button>
+        <button type="submit" class="btn btn-primary">Guardar producto</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/admin.js"></script>

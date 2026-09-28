@@ -1,0 +1,122 @@
+/* ---------- Sección cinemática: hielo + vertido, atada al scroll ----------
+   Sin librerías externas: un contenedor alto (.cinematic-track) más un
+   panel "sticky" adentro (.cinematic-pin). Mientras se hace scroll dentro
+   del alto del track, el panel queda fijo en pantalla y cinematic.js va
+   leyendo el progreso del scroll para animar el vaso cuadro a cuadro. */
+.cinematic {
+  position: relative;
+  background: var(--ink);
+  color: var(--cream);
+}
+.cinematic-track {
+  position: relative;
+  height: calc(100vh + 2200px);
+}
+.cinematic-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.cinematic-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 6vw, 80px);
+  padding-inline: 20px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1080px;
+}
+.cinematic-art-3d {
+  perspective: 1100px;
+  flex-shrink: 0;
+}
+.cinematic-art {
+  width: min(280px, 70vw);
+  height: auto;
+  overflow: visible;
+  transform: rotateX(6deg) rotateY(0deg);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.ice-cube rect {
+  stroke: #cfe0de;
+  stroke-width: 1.2;
+  opacity: 0.92;
+}
+.ice-facet-light { fill: #ffffff; opacity: 0.6; }
+.ice-facet-dark { fill: #274d47; opacity: 0.16; }
+.condensation circle {
+  fill: #f2e8d7;
+  opacity: 0;
+}
+.glass-outline { filter: drop-shadow(0 14px 22px rgba(0,0,0,0.4)); }
+.glass-sheen { mix-blend-mode: screen; }
+.bg-glow { transition: opacity 0.3s ease; }
+
+.cinematic-caption {
+  max-width: 320px;
+  opacity: 0;
+  transform: translateY(16px);
+}
+.cinematic-caption h2 { color: var(--cream); font-size: clamp(1.6rem, 3vw, 2.2rem); }
+.cinematic-caption .eyebrow { color: var(--gold); }
+.cinematic-scroll-hint {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(242,232,215,0.6);
+  margin-top: 10px;
+}
+
+/* estado sin animación (motion reducido): se ve completa y estática, sin pin */
+.cinematic.no-motion .cinematic-track { height: auto; }
+.cinematic.no-motion .cinematic-pin { position: static; height: auto; padding-block: 70px; }
+.cinematic.no-motion .cinematic-caption { opacity: 1; transform: none; }
+
+/* ---------- Reveal genérico al hacer scroll ---------- */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(28px);
+}
+.reveal-ready .reveal-up {
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+/* ---------- Micro-interacciones ---------- */
+.btn { transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease; }
+.btn:hover { transform: translateY(-2px); }
+.item-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.item-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.category-tab { transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease; }
+.category-tab:active { transform: scale(0.97); }
+
+.cart-btn.bump { animation: cartBump 0.4s ease; }
+@keyframes cartBump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.menu-content { position: relative; }
+.menu-grid.fx-enter { animation: fxFadeUp 0.35s ease; }
+@keyframes fxFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-up { opacity: 1 !important; transform: none !important; }
+  .btn:hover { transform: none; }
+  .item-card:hover { transform: none; }
+  .cart-btn.bump { animation: none; }
+  .menu-grid.fx-enter { animation: none; }
+  .ingredient-chip, .allergen-chip { transition: none; }
+  .ingredients-block.is-open .ingredient-chip,
+  .ingredients-block.is-open .allergen-chip { opacity: 1; transform: none; }
+  .item-media img { transition: none; opacity: 1; }
+}

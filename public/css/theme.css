@@ -1,0 +1,172 @@
+/* Kunturi Café — sistema visual compartido
+   Paleta extraída de las fotos reales del local: mesón de granito,
+   taza de cerámica, papel de diario vintage bajo los vasos, cuero
+   terracota del delantal, dorado del sello "@kunturi.cafe". */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --cream: #f2e8d7;
+  --cream-2: #ece0cb;
+  --card: #fbf6ec;
+  --ink: #2a1c13;
+  --ink-soft: #5c4a3a;
+  --terracotta: #a85a34;
+  --terracotta-dark: #863f22;
+  --terracotta-tint: #f0dccb;
+  --gold: #b9873f;
+  --slate: #6d7476;
+  --line: rgba(42, 28, 19, 0.14);
+  --shadow: 0 12px 30px -14px rgba(42, 28, 19, 0.35);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --font-display: 'Fraunces', 'Iowan Old Style', 'Georgia', serif;
+  --font-body: 'Work Sans', 'Segoe UI', sans-serif;
+}
+
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.12;
+  margin: 0 0 0.4em;
+  text-wrap: balance;
+}
+p { margin: 0 0 1em; color: var(--ink-soft); }
+.eyebrow {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--terracotta-dark);
+}
+.italic-accent {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  color: var(--gold);
+}
+
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-inline: 20px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 999px;
+  padding: 12px 22px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--terracotta);
+  color: #fff9f0;
+  box-shadow: 0 10px 22px -10px rgba(168, 90, 52, 0.65);
+}
+.btn-primary:hover { background: var(--terracotta-dark); }
+.btn-outline {
+  background: transparent;
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.btn-outline:hover { background: var(--ink); color: var(--cream); }
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 10px 14px;
+}
+.btn-ghost:hover { color: var(--ink); }
+.btn-sm { padding: 8px 14px; font-size: 0.82rem; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.pill-pendiente { background: #f0dccb; color: #8b4726; }
+.pill-preparando { background: #ecdca8; color: #7a5b12; }
+.pill-listo { background: #d9e6d3; color: #3e6b2c; }
+.pill-entregado { background: #dfe3e0; color: #4a5153; }
+.pill-cancelado { background: #f1d6d2; color: #9c3b2c; }
+
+input, select, textarea {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 1px;
+}
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.field { margin-bottom: 14px; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* textura sutil de papel de diario, inspirada en los manteles del local */
+.texture-paper {
+  background-color: var(--cream-2);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(42,28,19,0.035) 0px, rgba(42,28,19,0.035) 1px, transparent 1px, transparent 3px),
+    repeating-linear-gradient(90deg, rgba(42,28,19,0.02) 0px, rgba(42,28,19,0.02) 1px, transparent 1px, transparent 5px);
+}
+
+::selection { background: var(--terracotta-tint); color: var(--terracotta-dark); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--cream-2); border-radius: 8px; }

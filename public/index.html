@@ -1,0 +1,266 @@
+<title>Kunturi Café</title>
+<meta name="description" content="Pedidos online de Kunturi Café — café de especialidad, bebidas y pastelería artesanal.">
+<link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/animations.css">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#top">
+      <img src="/img/logo.svg" alt="" width="40" height="40">
+      <span class="brand-name">Kunturi <em>Café</em></span>
+    </a>
+    <nav class="site-nav">
+      <a href="#menu">Menú</a>
+      <a href="#historia">Nosotros</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <button class="cart-btn" id="cartToggle" type="button" aria-haspopup="dialog" aria-controls="cartDrawer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="10" cy="21" r="1.4" fill="currentColor" stroke="none"/><circle cx="17" cy="21" r="1.4" fill="currentColor" stroke="none"/></svg>
+      <span>Pedido</span>
+      <span class="cart-count" id="cartCount" hidden>0</span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow">Café de especialidad · Pedidos online</p>
+        <h1>Aromático, cercano<br>y con calma —<br><span class="italic-accent">como el norte.</span></h1>
+        <p class="hero-lede">Grano seleccionado, preparación cuidada y pastelería hecha en casa. Arma tu pedido y pásalo a buscar, o pídelo con delivery.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#menu">Ver el menú</a>
+          <a class="btn btn-outline" href="#contacto">Cómo llegar</a>
+        </div>
+        <div class="hero-meta" id="heroMeta">
+          <span class="hero-meta-item" id="heroHours">—</span>
+          <span class="hero-meta-sep">·</span>
+          <span class="hero-meta-item" id="heroAddress">—</span>
+        </div>
+      </div>
+      <div class="hero-art texture-paper" aria-hidden="true">
+        <div class="hero-art-badge">
+          <img src="/img/logo.svg" alt="">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cinematic" id="cinematic">
+    <div class="cinematic-track" id="cinematicTrack">
+    <div class="cinematic-pin">
+      <div class="cinematic-inner">
+        <div class="cinematic-art-3d">
+        <svg class="cinematic-art" id="cinematicArt" viewBox="0 0 400 520" aria-hidden="true">
+          <defs>
+            <linearGradient id="coffeeGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8a5230"/>
+              <stop offset="100%" stop-color="#3c1f10"/>
+            </linearGradient>
+            <clipPath id="glassClip">
+              <path d="M132,148 L268,148 L253,428 Q200,448 147,428 Z"/>
+            </clipPath>
+            <radialGradient id="bgGlow" cx="50%" cy="42%" r="60%">
+              <stop offset="0%" stop-color="#c97a3f" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#c97a3f" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="0.3">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="iceGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#e4f2ef"/>
+              <stop offset="100%" stop-color="#bcdad6"/>
+            </linearGradient>
+            <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="10"/>
+            </filter>
+            <filter id="softBlurSm" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="3"/>
+            </filter>
+          </defs>
+
+          <!-- resplandor ambiental detrás del vaso, da sensación de profundidad -->
+          <ellipse class="bg-glow" cx="200" cy="230" rx="230" ry="230" fill="url(#bgGlow)"/>
+
+          <!-- sombra de contacto en el "piso", ancla el vaso en el espacio 3D -->
+          <ellipse cx="200" cy="464" rx="92" ry="16" fill="#0d0805" opacity="0.4" filter="url(#softShadow)"/>
+
+          <!-- gotas de condensación -->
+          <g class="condensation">
+            <circle cx="150" cy="220" r="3.4"/>
+            <circle cx="160" cy="280" r="2.4"/>
+            <circle cx="248" cy="250" r="3"/>
+            <circle cx="240" cy="330" r="2.6"/>
+            <circle cx="200" cy="360" r="2.2"/>
+          </g>
+
+          <!-- contenido líquido, recortado a la silueta del vaso -->
+          <g clip-path="url(#glassClip)">
+            <rect id="milkLayer" x="120" y="428" width="170" height="0" fill="#efe0c4"/>
+            <rect id="coffeeLayer" x="120" y="428" width="170" height="0" fill="url(#coffeeGrad)" opacity="0.94"/>
+            <!-- brillo/reflejo de vidrio sobre el líquido, da sensación de refracción -->
+            <path class="glass-sheen" d="M150,150 L172,150 L156,440 L138,440 Z" fill="url(#sheenGrad)"/>
+          </g>
+
+          <!-- chorro -->
+          <rect id="pourStream" x="196" y="30" width="8" height="0" fill="url(#coffeeGrad)" opacity="0.9"/>
+
+          <!-- contorno del vaso (sobre el líquido) -->
+          <path class="glass-outline" d="M132,148 L268,148 L253,428 Q200,448 147,428 Z" fill="none" stroke="#f2e8d7" stroke-width="3" opacity="0.9"/>
+          <ellipse cx="200" cy="148" rx="68" ry="9" fill="none" stroke="#f2e8d7" stroke-width="2.5" opacity="0.5"/>
+          <path class="rim-highlight" d="M138,146 A68 9 0 0 1 200 139" fill="none" stroke="#fff" stroke-width="2" opacity="0.55" stroke-linecap="round"/>
+
+          <!-- cubos de hielo, con facetas para efecto de talla 3D -->
+          <g class="ice-cube" id="ice1"><rect width="30" height="30" rx="7" fill="url(#iceGrad)"/><path class="ice-facet-light" d="M5,5 L17,5 L9,17 Z"/><path class="ice-facet-dark" d="M29,29 L17,29 L25,17 Z"/></g>
+          <g class="ice-cube" id="ice2"><rect width="26" height="26" rx="6" fill="url(#iceGrad)"/><path class="ice-facet-light" d="M4,4 L15,4 L8,15 Z"/><path class="ice-facet-dark" d="M25,25 L15,25 L22,15 Z"/></g>
+          <g class="ice-cube" id="ice3"><rect width="32" height="32" rx="7" fill="url(#iceGrad)"/><path class="ice-facet-light" d="M5,5 L18,5 L9,18 Z"/><path class="ice-facet-dark" d="M31,31 L18,31 L27,18 Z"/></g>
+          <g class="ice-cube" id="ice4"><rect width="24" height="24" rx="6" fill="url(#iceGrad)"/><path class="ice-facet-light" d="M4,4 L14,4 L7,14 Z"/><path class="ice-facet-dark" d="M23,23 L14,23 L20,14 Z"/></g>
+          <g class="ice-cube" id="ice5"><rect width="28" height="28" rx="6" fill="url(#iceGrad)"/><path class="ice-facet-light" d="M4,4 L16,4 L8,16 Z"/><path class="ice-facet-dark" d="M27,27 L16,27 L23,16 Z"/></g>
+        </svg>
+        </div>
+
+        <div class="cinematic-caption">
+          <p class="eyebrow">Iced latte</p>
+          <h2>Capas marcadas,<br><span class="italic-accent">servido con calma.</span></h2>
+          <p class="cinematic-scroll-hint">Sigue bajando ↓</p>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <section class="menu-section" id="menu">
+    <div class="container">
+      <p class="eyebrow" style="text-align:center">Nuestra carta</p>
+      <h2 style="text-align:center">Elige y personaliza tu pedido</h2>
+      <p class="menu-disclaimer">Ingredientes referenciales, según receta habitual — cuéntanos si tienes alguna alergia.</p>
+      <div class="category-tabs" id="categoryTabs"></div>
+      <div id="menuContent" class="menu-content">
+        <p class="menu-loading">Cargando el menú…</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="story-section texture-paper" id="historia">
+    <div class="container story-inner">
+      <p class="eyebrow">Nuestra historia</p>
+      <h2>Un rincón para tomarse las cosas con calma</h2>
+      <p class="story-text">Kunturi nació de una idea simple: servir buen café, sin apuro, en un espacio cálido y cuidado. Cada taza se prepara al momento; cada dulce, en nuestro propio horno.</p>
+    </div>
+  </section>
+
+  <section class="contact-section" id="contacto">
+    <div class="container contact-inner">
+      <div>
+        <p class="eyebrow">Visítanos</p>
+        <h2>¿Dónde estamos?</h2>
+        <p id="contactAddress">—</p>
+        <p id="contactHours">—</p>
+      </div>
+      <a id="contactInstagram" class="btn btn-outline" href="#" target="_blank" rel="noopener">Síguenos en Instagram</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>© <span id="year"></span> Kunturi Café</span>
+    <a href="/admin.html" class="footer-admin-link">Acceso del local</a>
+  </div>
+</footer>
+
+<!-- Carrito -->
+<div class="drawer-overlay" id="cartOverlay" hidden></div>
+<aside class="cart-drawer" id="cartDrawer" role="dialog" aria-label="Tu pedido" aria-hidden="true">
+  <div class="cart-drawer-header">
+    <h3>Tu pedido</h3>
+    <button class="icon-btn" id="cartClose" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-drawer-footer">
+    <div class="cart-total-row">
+      <span>Total</span>
+      <strong id="cartTotal">$0</strong>
+    </div>
+    <button class="btn btn-primary btn-block" id="goToCheckout" disabled>Continuar con el pedido</button>
+  </div>
+</aside>
+
+<!-- Selección de variantes -->
+<div class="modal-overlay" id="variantOverlay" hidden>
+  <div class="modal" role="dialog" aria-label="Personalizar producto">
+    <div class="modal-header">
+      <h3 id="variantItemName">Producto</h3>
+      <button class="icon-btn" id="variantClose" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body" id="variantBody"></div>
+    <div class="modal-footer">
+      <div class="qty-control">
+        <button type="button" id="variantQtyMinus" class="icon-btn">−</button>
+        <span id="variantQty">1</span>
+        <button type="button" id="variantQtyPlus" class="icon-btn">+</button>
+      </div>
+      <button class="btn btn-primary" id="variantAdd">Agregar — <span id="variantPrice">$0</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Checkout -->
+<div class="modal-overlay" id="checkoutOverlay" hidden>
+  <div class="modal" role="dialog" aria-label="Datos del pedido">
+    <div class="modal-header">
+      <h3>Finalizar pedido</h3>
+      <button class="icon-btn" id="checkoutClose" aria-label="Cerrar">✕</button>
+    </div>
+    <form class="modal-body" id="checkoutForm">
+      <div class="field">
+        <label for="ckName">Nombre</label>
+        <input id="ckName" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="ckPhone">Teléfono de contacto</label>
+        <input id="ckPhone" required inputmode="tel" autocomplete="tel" placeholder="+56 9 ...">
+      </div>
+      <div class="field">
+        <label>Entrega</label>
+        <div class="fulfillment-toggle">
+          <label class="radio-pill"><input type="radio" name="fulfillment" value="retiro" checked> Retiro en local</label>
+          <label class="radio-pill"><input type="radio" name="fulfillment" value="delivery"> Delivery</label>
+        </div>
+      </div>
+      <div class="field" id="addressField" hidden>
+        <label for="ckAddress">Dirección de despacho</label>
+        <input id="ckAddress" placeholder="Calle, número, comuna">
+      </div>
+      <div class="field">
+        <label for="ckNotes">Notas (opcional)</label>
+        <textarea id="ckNotes" rows="2" placeholder="Ej: sin azúcar, tocar el timbre, etc."></textarea>
+      </div>
+      <p class="pay-note">Se paga al retirar o recibir el pedido (efectivo o transferencia).</p>
+      <div class="checkout-summary" id="checkoutSummary"></div>
+      <p class="form-error" id="checkoutError" hidden></p>
+      <button class="btn btn-primary btn-block" type="submit" id="checkoutSubmit">Confirmar pedido</button>
+    </form>
+  </div>
+</div>
+
+<!-- Confirmación -->
+<div class="modal-overlay" id="confirmOverlay" hidden>
+  <div class="modal" role="dialog" aria-label="Pedido confirmado">
+    <div class="modal-body confirm-body">
+      <p class="eyebrow">Pedido recibido</p>
+      <h3 id="confirmCode">K-0000</h3>
+      <p>Te contactaremos a la brevedad. Total a pagar: <strong id="confirmTotal">$0</strong></p>
+      <a class="btn btn-primary btn-block" id="confirmWhatsapp" target="_blank" rel="noopener" hidden>Avisar por WhatsApp</a>
+      <button class="btn btn-outline btn-block" id="confirmClose">Volver al menú</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/cinematic.js"></script>
