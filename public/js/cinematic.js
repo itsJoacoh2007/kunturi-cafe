@@ -36,6 +36,45 @@
   var videoReady = false;
   var videoDuration = 0;
 
+  // En celulares (pantalla táctil), mover currentTime a mano cuadro a cuadro es
+  // poco confiable — varios navegadores móviles (sobre todo iOS Safari) no
+  // decodifican los cuadros al "buscar" así, y el video queda pegado mostrando
+  // solo el poster, como si fuera una foto fija. En vez de perseguir ese bug
+  // dispositivo por dispositivo, en móvil el video simplemente se reproduce
+  // solo, en loop — se ve el vertido igual, solo que no atado cuadro a cuadro
+  // al scroll (eso se mantiene en desktop, donde sí funciona bien). El tramo
+  // largo de scroll (.cinematic-track) también se colapsa en móvil por CSS
+  // (ver animations.css, @media (pointer: coarse)), así que acá ni siquiera
+  // hace falta escuchar el scroll: el texto y el resplandor quedan fijos,
+  // igual que en el modo de "motion reducido".
+  var isTouch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+
+  if (isTouch) {
+    cinematic.classList.add('is-touch');
+    if (els.caption) { els.caption.style.opacity = 1; els.caption.style.transform = 'none'; }
+    if (els.glow) els.glow.style.opacity = 0.85;
+    if (els.video) {
+      els.video.loop = true;
+      els.video.muted = true;
+      els.video.setAttribute('muted', '');
+      var mobilePlay = els.video.play();
+      if (mobilePlay && typeof mobilePlay.catch === 'function') {
+        mobilePlay.catch(function () {
+          // Si el navegador igual bloquea el autoplay, se reintenta con el
+          // primer toque/scroll del usuario (eso sí cuenta como gesto válido).
+          var retry = function () {
+            els.video.play().catch(function () {});
+            window.removeEventListener('touchstart', retry);
+            window.removeEventListener('scroll', retry);
+          };
+          window.addEventListener('touchstart', retry, { passive: true, once: true });
+          window.addEventListener('scroll', retry, { passive: true, once: true });
+        });
+      }
+    }
+    return;
+  }
+
   if (els.video) {
     if (els.video.readyState >= 1 && els.video.duration) {
       onVideoMetadata();

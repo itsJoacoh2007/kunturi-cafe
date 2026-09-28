@@ -105,6 +105,18 @@
 .cinematic.no-motion .cinematic-pin { position: static; height: auto; padding-block: 70px; }
 .cinematic.no-motion .cinematic-caption { opacity: 1; transform: none; }
 
+/* En celulares/tablets (pantalla táctil) el video ya no está atado al scroll
+   (ver cinematic.js: ahí simplemente se reproduce solo, en loop). Por eso acá
+   tampoco necesita el tramo largo de "scroll falso" (100vh + 2200px) que se
+   usa en desktop para ir revelando cuadro a cuadro — eso en móvil solo se
+   sentía como un pasillo negro y vacío al scrollear. Se colapsa al alto real
+   del contenido, como una sección normal más. */
+@media (pointer: coarse) {
+  .cinematic-track { height: auto; }
+  .cinematic-pin { position: static; height: auto; padding-block: 56px; }
+  .cinematic-caption { opacity: 1; transform: none; }
+}
+
 /* ---------- Sección Vista 360° ---------- */
 .three-sixty-section {
   background: var(--cream, #f6efe3);
