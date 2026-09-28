@@ -54,83 +54,56 @@
     <div class="cinematic-pin">
       <div class="cinematic-inner">
         <div class="cinematic-art-3d">
-        <svg class="cinematic-art" id="cinematicArt" viewBox="0 0 400 520" aria-hidden="true">
-          <defs>
-            <linearGradient id="coffeeGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#8a5230"/>
-              <stop offset="100%" stop-color="#3c1f10"/>
-            </linearGradient>
-            <clipPath id="glassClip">
-              <path d="M132,148 L268,148 L253,428 Q200,448 147,428 Z"/>
-            </clipPath>
-            <radialGradient id="bgGlow" cx="50%" cy="42%" r="60%">
-              <stop offset="0%" stop-color="#c97a3f" stop-opacity="0.35"/>
-              <stop offset="100%" stop-color="#c97a3f" stop-opacity="0"/>
-            </radialGradient>
-            <linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="0.3">
-              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.5"/>
-              <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-            </linearGradient>
-            <linearGradient id="iceGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#ffffff"/>
-              <stop offset="55%" stop-color="#e4f2ef"/>
-              <stop offset="100%" stop-color="#bcdad6"/>
-            </linearGradient>
-            <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur stdDeviation="10"/>
-            </filter>
-            <filter id="softBlurSm" x="-60%" y="-60%" width="220%" height="220%">
-              <feGaussianBlur stdDeviation="3"/>
-            </filter>
-          </defs>
-
-          <!-- resplandor ambiental detrás del vaso, da sensación de profundidad -->
-          <ellipse class="bg-glow" cx="200" cy="230" rx="230" ry="230" fill="url(#bgGlow)"/>
-
-          <!-- sombra de contacto en el "piso", ancla el vaso en el espacio 3D -->
-          <ellipse cx="200" cy="464" rx="92" ry="16" fill="#0d0805" opacity="0.4" filter="url(#softShadow)"/>
-
-          <!-- gotas de condensación -->
-          <g class="condensation">
-            <circle cx="150" cy="220" r="3.4"/>
-            <circle cx="160" cy="280" r="2.4"/>
-            <circle cx="248" cy="250" r="3"/>
-            <circle cx="240" cy="330" r="2.6"/>
-            <circle cx="200" cy="360" r="2.2"/>
-          </g>
-
-          <!-- contenido líquido, recortado a la silueta del vaso -->
-          <g clip-path="url(#glassClip)">
-            <rect id="milkLayer" x="120" y="428" width="170" height="0" fill="#efe0c4"/>
-            <rect id="coffeeLayer" x="120" y="428" width="170" height="0" fill="url(#coffeeGrad)" opacity="0.94"/>
-            <!-- brillo/reflejo de vidrio sobre el líquido, da sensación de refracción -->
-            <path class="glass-sheen" d="M150,150 L172,150 L156,440 L138,440 Z" fill="url(#sheenGrad)"/>
-          </g>
-
-          <!-- chorro -->
-          <rect id="pourStream" x="196" y="30" width="8" height="0" fill="url(#coffeeGrad)" opacity="0.9"/>
-
-          <!-- contorno del vaso (sobre el líquido) -->
-          <path class="glass-outline" d="M132,148 L268,148 L253,428 Q200,448 147,428 Z" fill="none" stroke="#f2e8d7" stroke-width="3" opacity="0.9"/>
-          <ellipse cx="200" cy="148" rx="68" ry="9" fill="none" stroke="#f2e8d7" stroke-width="2.5" opacity="0.5"/>
-          <path class="rim-highlight" d="M138,146 A68 9 0 0 1 200 139" fill="none" stroke="#fff" stroke-width="2" opacity="0.55" stroke-linecap="round"/>
-
-          <!-- cubos de hielo, con facetas para efecto de talla 3D -->
-          <g class="ice-cube" id="ice1"><rect width="30" height="30" rx="7" fill="url(#iceGrad)"/><path class="ice-facet-light" d="M5,5 L17,5 L9,17 Z"/><path class="ice-facet-dark" d="M29,29 L17,29 L25,17 Z"/></g>
-          <g class="ice-cube" id="ice2"><rect width="26" height="26" rx="6" fill="url(#iceGrad)"/><path class="ice-facet-light" d="M4,4 L15,4 L8,15 Z"/><path class="ice-facet-dark" d="M25,25 L15,25 L22,15 Z"/></g>
-          <g class="ice-cube" id="ice3"><rect width="32" height="32" rx="7" fill="url(#iceGrad)"/><path class="ice-facet-light" d="M5,5 L18,5 L9,18 Z"/><path class="ice-facet-dark" d="M31,31 L18,31 L27,18 Z"/></g>
-          <g class="ice-cube" id="ice4"><rect width="24" height="24" rx="6" fill="url(#iceGrad)"/><path class="ice-facet-light" d="M4,4 L14,4 L7,14 Z"/><path class="ice-facet-dark" d="M23,23 L14,23 L20,14 Z"/></g>
-          <g class="ice-cube" id="ice5"><rect width="28" height="28" rx="6" fill="url(#iceGrad)"/><path class="ice-facet-light" d="M4,4 L16,4 L8,16 Z"/><path class="ice-facet-dark" d="M27,27 L16,27 L23,16 Z"/></g>
-        </svg>
+          <div class="bg-glow" aria-hidden="true"></div>
+          <video
+            class="cinematic-art"
+            id="cinematicVideo"
+            muted
+            playsinline
+            preload="auto"
+            poster="/media/iced-latte-poster.jpg"
+            aria-label="Ilustración animada de un iced latte armándose en capas, generada con inteligencia artificial"
+          >
+            <source src="/media/iced-latte-pour.webm" type="video/webm">
+            <source src="/media/iced-latte-pour.mp4" type="video/mp4">
+          </video>
         </div>
 
         <div class="cinematic-caption">
           <p class="eyebrow">Iced latte</p>
           <h2>Capas marcadas,<br><span class="italic-accent">servido con calma.</span></h2>
+          <p class="ai-disclaimer">Ilustración generada con IA — no es una filmación real del local.</p>
           <p class="cinematic-scroll-hint">Sigue bajando ↓</p>
+
+          <div class="storyboard-strip" aria-hidden="true">
+            <img src="/media/iced-latte-1.jpg" alt="" loading="lazy" width="120" height="144">
+            <img src="/media/iced-latte-2.jpg" alt="" loading="lazy" width="120" height="144">
+            <img src="/media/iced-latte-3.jpg" alt="" loading="lazy" width="120" height="144">
+            <img src="/media/iced-latte-4.jpg" alt="" loading="lazy" width="120" height="144">
+          </div>
         </div>
       </div>
     </div>
+    </div>
+  </section>
+
+  <section class="three-sixty-section" id="threeSixty">
+    <div class="container three-sixty-inner">
+      <div class="three-sixty-copy">
+        <p class="eyebrow">Vista 360°</p>
+        <h2>Dale la vuelta<br><span class="italic-accent">antes de pedirlo.</span></h2>
+        <p class="three-sixty-text">Arrastra o usa las flechas para verlo desde todos los ángulos.</p>
+        <p class="ai-disclaimer">Ilustración generada con IA, a modo referencial — no es una foto real del producto.</p>
+      </div>
+      <div class="three-sixty-viewer" id="threeSixtyViewer" role="group" aria-label="Visor 360 grados del iced latte">
+        <button type="button" class="three-sixty-arrow three-sixty-arrow--prev" id="threeSixtyPrev" aria-label="Girar a la izquierda">‹</button>
+        <div class="three-sixty-stage" id="threeSixtyStage">
+          <img src="/media/iced-latte-360-1.jpg" alt="Iced latte Kunturi, vista frontal (ilustración IA)" id="threeSixtyImg" draggable="false">
+        </div>
+        <button type="button" class="three-sixty-arrow three-sixty-arrow--next" id="threeSixtyNext" aria-label="Girar a la derecha">›</button>
+        <div class="three-sixty-dots" id="threeSixtyDots"></div>
+        <p class="three-sixty-hint">↔ Arrastra para girar</p>
+      </div>
     </div>
   </section>
 
@@ -264,3 +237,4 @@
 
 <script src="/js/app.js"></script>
 <script src="/js/cinematic.js"></script>
+<script src="/js/three-sixty.js"></script>

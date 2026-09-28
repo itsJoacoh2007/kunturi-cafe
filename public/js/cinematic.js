@@ -20,42 +20,55 @@
 
   if (!cinematic || !track) return;
 
-  var ICE_CUBES = [
-    { id: 'ice1', x: 152, rot: -12, startY: -80, fallStart: 0.0, fallEnd: 0.16, finalY: 384 },
-    { id: 'ice2', x: 186, rot: 18, startY: -140, fallStart: 0.04, fallEnd: 0.2, finalY: 372 },
-    { id: 'ice3', x: 216, rot: -8, startY: -60, fallStart: 0.08, fallEnd: 0.24, finalY: 390 },
-    { id: 'ice4', x: 244, rot: 10, startY: -180, fallStart: 0.12, fallEnd: 0.28, finalY: 380 },
-    { id: 'ice5', x: 200, rot: 4, startY: -110, fallStart: 0.16, fallEnd: 0.32, finalY: 360 },
-  ];
+  // El "vaso" ahora es un video real (generado con IA a partir de los prompts
+  // que se le dieron al dueño) en vez del SVG animado a mano. La idea sigue
+  // siendo la misma: el vertido avanza cuadro a cuadro según el scroll.
   var PHASES = {
-    pourStream1: [0.28, 0.4],
-    milk: [0.32, 0.46],
-    coffee: [0.48, 0.7],
-    pourFade: [0.66, 0.74],
-    condensation: [0.5, 0.72],
     caption: [0.78, 0.95],
   };
 
   var els = {
-    milk: document.getElementById('milkLayer'),
-    coffee: document.getElementById('coffeeLayer'),
-    pour: document.getElementById('pourStream'),
     caption: document.querySelector('.cinematic-caption'),
-    condensation: document.querySelectorAll('.condensation circle'),
-    cubes: ICE_CUBES.map(function (c) { return document.getElementById(c.id); }),
-    art: document.getElementById('cinematicArt'),
+    video: document.getElementById('cinematicVideo'),
     glow: document.querySelector('.bg-glow'),
   };
+
+  var videoReady = false;
+  var videoDuration = 0;
+
+  if (els.video) {
+    if (els.video.readyState >= 1 && els.video.duration) {
+      onVideoMetadata();
+    } else {
+      els.video.addEventListener('loadedmetadata', onVideoMetadata);
+    }
+  }
+
+  function onVideoMetadata() {
+    videoDuration = els.video.duration || 0;
+    videoReady = videoDuration > 0;
+    // Truco para Safari/iOS: sin un play() (aunque sea silencioso e inmediatamente
+    // pausado), el navegador no decodifica cuadros al mover currentTime a mano.
+    var playAttempt = els.video.play();
+    if (playAttempt && typeof playAttempt.then === 'function') {
+      playAttempt.then(function () { els.video.pause(); }).catch(function () {
+        // Autoplay bloqueado: igual intentamos fijar currentTime más abajo.
+      });
+    } else {
+      els.video.pause();
+    }
+    if (reduceMotion) {
+      setStaticState();
+    } else {
+      onScroll();
+    }
+  }
 
   if (reduceMotion) {
     cinematic.classList.add('no-motion');
     setStaticState();
     return;
   }
-
-  ICE_CUBES.forEach(function (cube, i) {
-    if (els.cubes[i]) setTransform(els.cubes[i], cube.x, cube.startY, 0);
-  });
 
   var ticking = false;
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -80,40 +93,15 @@
   }
 
   function applyFrame(p) {
-    ICE_CUBES.forEach(function (cube, i) {
-      var el = els.cubes[i];
-      if (!el) return;
-      var t = phase(p, cube.fallStart, cube.fallEnd);
-      var eased = easeOutCubic(t);
-      var y = lerp(cube.startY, cube.finalY, eased);
-      var rot = lerp(0, cube.rot, eased);
-      setTransform(el, cube.x, y, rot);
-    });
-
-    if (els.pour) {
-      var tPour = easeInOutQuad(phase(p, PHASES.pourStream1[0], PHASES.pourStream1[1]));
-      var fade = 1 - phase(p, PHASES.pourFade[0], PHASES.pourFade[1]);
-      els.pour.setAttribute('height', lerp(0, 260, tPour));
-      els.pour.style.opacity = Math.min(tPour, fade);
+    if (els.video && videoReady) {
+      // El vertido "ocupa" el primer ~85% del progreso de la sección; el resto
+      // sostiene el último cuadro (vaso listo) mientras aparece el texto.
+      var videoProgress = clamp(p / 0.85, 0, 1);
+      var targetTime = videoProgress * videoDuration;
+      if (Math.abs(els.video.currentTime - targetTime) > 0.03) {
+        try { els.video.currentTime = targetTime; } catch (e) { /* seek aún no listo */ }
+      }
     }
-
-    if (els.milk) {
-      var tMilk = easeInOutQuad(phase(p, PHASES.milk[0], PHASES.milk[1]));
-      els.milk.setAttribute('y', lerp(428, 350, tMilk));
-      els.milk.setAttribute('height', lerp(0, 78, tMilk));
-    }
-
-    if (els.coffee) {
-      var tCoffee = easeInOutQuad(phase(p, PHASES.coffee[0], PHASES.coffee[1]));
-      els.coffee.setAttribute('y', lerp(428, 190, tCoffee));
-      els.coffee.setAttribute('height', lerp(0, 160, tCoffee));
-    }
-
-    var tCond = phase(p, PHASES.condensation[0], PHASES.condensation[1]);
-    els.condensation.forEach(function (c, i) {
-      var staggered = phase(tCond * els.condensation.length - i, 0, 1);
-      c.style.opacity = staggered * 0.55;
-    });
 
     if (els.caption) {
       var tCap = easeOutCubic(phase(p, PHASES.caption[0], PHASES.caption[1]));
@@ -121,32 +109,17 @@
       els.caption.style.transform = 'translateY(' + lerp(16, 0, tCap) + 'px)';
     }
 
-    // El vaso "gira" suavemente en 3D a medida que se avanza en la sección,
-    // como pidió el usuario (un giro tipo 360°, no un video real).
-    if (els.art) {
-      var roty = lerp(-20, 20, p);
-      var scale = lerp(0.94, 1.06, easeInOutQuad(p));
-      els.art.style.transform = 'rotateX(6deg) rotateY(' + roty + 'deg) scale(' + scale + ')';
-    }
     if (els.glow) {
-      els.glow.style.opacity = lerp(0.5, 1.1, phase(p, PHASES.coffee[0], PHASES.coffee[1]));
+      els.glow.style.opacity = lerp(0.55, 1, easeInOutQuad(clamp(p / 0.85, 0, 1)));
     }
   }
 
   function setStaticState() {
-    if (els.milk) { els.milk.setAttribute('y', 350); els.milk.setAttribute('height', 78); }
-    if (els.coffee) { els.coffee.setAttribute('y', 190); els.coffee.setAttribute('height', 160); }
-    if (els.pour) els.pour.style.opacity = 0;
-    els.condensation.forEach(function (c) { c.style.opacity = 0.5; });
-    ICE_CUBES.forEach(function (cube, i) {
-      if (els.cubes[i]) setTransform(els.cubes[i], cube.x, cube.finalY, cube.rot);
-    });
-    if (els.art) els.art.style.transform = 'rotateX(6deg) rotateY(-10deg)';
-    if (els.glow) els.glow.style.opacity = 0.9;
-  }
-
-  function setTransform(el, x, y, rotDeg) {
-    el.setAttribute('transform', 'translate(' + x + ',' + y + ') rotate(' + rotDeg + ',15,15)');
+    if (els.caption) { els.caption.style.opacity = 1; els.caption.style.transform = 'none'; }
+    if (els.glow) els.glow.style.opacity = 0.85;
+    if (els.video && videoReady) {
+      try { els.video.currentTime = videoDuration; } catch (e) { /* noop */ }
+    }
   }
 
   function phase(p, start, end) { return clamp((p - start) / (end - start), 0, 1); }
