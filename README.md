@@ -15,16 +15,22 @@ Incluye:
   estado, gestión completa del menú (categorías, productos, precios,
   variantes, fotos), y ajustes del local (WhatsApp, dirección, horario,
   Instagram, contraseña).
-- **Animaciones atadas al scroll**: justo después del hero hay un video
-  real (generado con IA a partir de fotos que subió el dueño) del iced
-  latte armándose en capas, que avanza o retrocede cuadro a cuadro
-  exactamente según hacia dónde se scrollea (`public/js/cinematic.js`,
-  sin librerías externas — mueve `video.currentTime` según el progreso
-  del scroll). Más abajo hay un **visor 360°** (`public/js/three-sixty.js`)
-  para girar el mismo vaso con el mouse, el dedo o el teclado. Ambos
-  llevan un aviso de que son ilustraciones generadas con IA, no fotos ni
-  video real del local. El resto de las secciones (menú, historia,
-  contacto) aparecen con una animación sutil al entrar en pantalla.
+- **Animaciones atadas al scroll**: justo después del hero hay una
+  secuencia de 44 fotos (generadas con IA a partir de un video real que
+  subió el dueño) del iced latte armándose en capas, que avanza o
+  retrocede cuadro a cuadro exactamente según hacia dónde se scrollea
+  (`public/js/cinematic.js`, sin librerías externas — cambia el `src` de
+  una foto según el progreso del scroll). Se probó primero con el video
+  real tal cual, pero en producción resultaba poco confiable según el
+  hosting/navegador (autoplay que se cortaba a la mitad en celular,
+  scroll-scrubbing que no avanzaba en desktop) — una secuencia de fotos
+  es una técnica mucho más robusta para este efecto porque cada cuadro es
+  solo una imagen normal, sin streaming ni códecs de video de por medio.
+  Más abajo hay un **visor 360°** (`public/js/three-sixty.js`) para girar
+  el mismo vaso con el mouse, el dedo o el teclado. Ambos llevan un aviso
+  de que son ilustraciones generadas con IA, no fotos ni video real del
+  local. El resto de las secciones (menú, historia, contacto) aparecen
+  con una animación sutil al entrar en pantalla.
 
 Está construido en **Node.js puro, sin dependencias externas** (sin
 Express, sin frameworks): un solo proceso HTTP y una base de datos en un
@@ -93,10 +99,11 @@ public/css/admin.css   Estilos del panel
 public/css/animations.css  Estilos de las animaciones
 public/js/app.js       Lógica de la tienda (carrito, checkout)
 public/js/admin.js     Lógica del panel
-public/js/cinematic.js Video del iced latte atado al scroll y "reveal" de secciones
+public/js/cinematic.js Secuencia de fotos del iced latte atada al scroll y "reveal" de secciones
 public/js/three-sixty.js Visor 360° (arrastrar/flechas/teclado)
 public/img/logo.svg    Isotipo (sello circular con cóndor)
-public/media/          Video + fotos generadas con IA para la sección cinemática y el 360°
+public/media/pour/     Secuencia de 44 fotos (frame-001.jpg…frame-044.jpg) del vertido, generadas con IA
+public/media/          Resto de fotos generadas con IA (storyboard y 360°)
 public/uploads/        Fotos y videos de productos subidas desde el panel
 ```
 
@@ -107,20 +114,36 @@ Los colores y tipografías están centralizados en `public/css/theme.css`
 cambia `--terracotta`. Las fuentes (Fraunces + Work Sans) se cargan desde
 Google Fonts en la misma hoja de estilos.
 
-### Ajustar la animación de scroll y el video
+### Ajustar la animación de scroll
 
-En `public/js/cinematic.js`, el video (`#cinematicVideo`) avanza según
-`video.currentTime = progreso_del_scroll * duración_del_video` — el
-vertido ocupa el primer 85% del scroll de la sección (editable en la
-constante `0.85` dentro de `applyFrame`); el 15% final sostiene el último
-cuadro mientras aparece el texto. El texto y el producto que se muestra
-("Iced latte") están directamente en `public/index.html`, dentro de la
-sección `id="cinematic"` — se puede repetir el mismo patrón para otra
-bebida (cambiando el video/fotos en `public/media/` y las rutas en el
-HTML). La duración total del scroll se controla en
+En `public/js/cinematic.js`, la foto (`#cinematicFrame`) cambia de cuadro
+según `frameIndex = progreso_del_scroll * TOTAL_FRAMES` — el vertido ocupa
+el primer 85% del scroll de la sección (editable en la constante `0.85`
+dentro de `applyFrame`); el 15% final sostiene el último cuadro mientras
+aparece el texto. Los 44 cuadros viven en `public/media/pour/` como
+`frame-001.jpg`…`frame-044.jpg` (se extrajeron del video original con
+`ffmpeg -i video.mp4 -vf fps=N,scale=520:-2 -q:v 5 frame-%03d.jpg`, donde
+`N = (cantidad_de_cuadros - 1) / duración_en_segundos`). El texto y el
+producto que se muestra ("Iced latte") están directamente en
+`public/index.html`, dentro de la sección `id="cinematic"` — se puede
+repetir el mismo patrón para otra bebida (generando su propia carpeta de
+cuadros en `public/media/` y actualizando las rutas/constante
+`TOTAL_FRAMES` en el HTML/JS). La duración total del scroll se controla en
 `public/css/animations.css` con `.cinematic-track { height: calc(100vh +
 2200px); }`: subir ese `2200px` hace la escena más larga/lenta de
-scrollear, bajarlo la hace más corta/rápida.
+scrollear, bajarlo la hace más corta/rápida. En celular la secuencia se
+reproduce sola en loop (cada 90ms un cuadro, ver la constante en
+`cinematic.js`) en vez de ir atada al scroll.
+
+**Nota técnica**: se optó por una secuencia de fotos en vez de un
+`<video>` con `currentTime` porque, en producción (Render), el video
+resultó poco confiable: en celular el autoplay se cortaba a la mitad del
+clip y quedaba pegado, y en desktop el scroll-scrubbing nunca avanzaba más
+allá del primer cuadro — un problema de cómo ese hosting sirve/transmite
+archivos de video en streaming, no del código en sí. Una secuencia de
+imágenes evita ese problema por completo: cada cuadro es una descarga
+HTTP normal, sin streaming ni códecs de por medio, así que funciona igual
+en cualquier navegador y cualquier hosting.
 
 Para agregar otra bebida al **visor 360°**, genera 4 fotos (mismo prompt,
 distinto ángulo — ver `PROMPTS-IMAGENES-IA.md`), ponlas en `public/media/`

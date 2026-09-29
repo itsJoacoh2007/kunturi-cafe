@@ -2,7 +2,8 @@
    Sin librerías externas: un contenedor alto (.cinematic-track) más un
    panel "sticky" adentro (.cinematic-pin). Mientras se hace scroll dentro
    del alto del track, el panel queda fijo en pantalla y cinematic.js va
-   leyendo el progreso del scroll para animar el vaso cuadro a cuadro. */
+   leyendo el progreso del scroll para cambiar la foto del vaso (secuencia
+   de cuadros — ver cinematic.js sobre por qué ya no es un <video>). */
 .cinematic {
   position: relative;
   background: var(--ink);
@@ -36,7 +37,7 @@
   perspective: 1100px;
   flex-shrink: 0;
 }
-/* resplandor ambiental detrás del video, da sensación de profundidad */
+/* resplandor ambiental detrás de la foto, da sensación de profundidad */
 .bg-glow {
   position: absolute;
   inset: -18% -30%;
@@ -77,34 +78,6 @@
   color: rgba(242,232,215,0.6);
   margin-top: 10px;
 }
-
-/* Botón de respaldo visible si el navegador móvil bloqueó el autoplay
-   silencioso del video (ver cinematic.js: solo aparece si tras un momento
-   el video sigue pausado). Un toque directo acá sí cuenta como gesto
-   válido en cualquier navegador, así el video nunca queda sin forma de
-   arrancarlo. */
-.cinematic-tap-play {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 20px;
-  border-radius: 999px;
-  border: none;
-  background: rgba(20,14,8,0.75);
-  color: #fff;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.4);
-  white-space: nowrap;
-}
-.cinematic-tap-play:active { transform: translate(-50%, -50%) scale(0.96); }
 
 .ai-disclaimer {
   font-size: 0.76rem;

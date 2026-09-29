@@ -20,130 +20,79 @@
 
   if (!cinematic || !track) return;
 
-  // El "vaso" ahora es un video real (generado con IA a partir de los prompts
-  // que se le dieron al dueño) en vez del SVG animado a mano. La idea sigue
-  // siendo la misma: el vertido avanza cuadro a cuadro según el scroll.
+  // El "vaso" es una secuencia de fotos (generadas con IA a partir de un video
+  // real que mandó el dueño) en vez del video mismo. Se probó primero con el
+  // video real tal cual, pero en producción (Render) resultó poco confiable:
+  // en celular el autoplay se cortaba a la mitad y quedaba pegado, y en
+  // desktop el scroll-scrubbing (mover video.currentTime a mano) nunca
+  // avanzaba más allá del primer cuadro — un problema de cómo el hosting
+  // sirve/transmite el archivo de video, no del código en sí. Una secuencia
+  // de imágenes evita todo eso: cada cuadro es una foto normal, sin streaming
+  // ni códecs ni políticas de autoplay de por medio, así que funciona igual
+  // de bien en cualquier navegador y cualquier hosting.
   var PHASES = {
     caption: [0.78, 0.95],
   };
 
   var els = {
     caption: document.querySelector('.cinematic-caption'),
-    video: document.getElementById('cinematicVideo'),
+    frame: document.getElementById('cinematicFrame'),
     glow: document.querySelector('.bg-glow'),
   };
 
-  var videoReady = false;
-  var videoDuration = 0;
+  var TOTAL_FRAMES = 44;
+  function framePath(n) {
+    var padded = (n < 100 ? (n < 10 ? '00' : '0') : '') + n;
+    return '/media/pour/frame-' + padded + '.jpg';
+  }
 
-  // En celulares (pantalla táctil), mover currentTime a mano cuadro a cuadro es
-  // poco confiable — varios navegadores móviles (sobre todo iOS Safari) no
-  // decodifican los cuadros al "buscar" así, y el video queda pegado mostrando
-  // solo el poster, como si fuera una foto fija. En vez de perseguir ese bug
-  // dispositivo por dispositivo, en móvil el video simplemente se reproduce
-  // solo, en loop — se ve el vertido igual, solo que no atado cuadro a cuadro
-  // al scroll (eso se mantiene en desktop, donde sí funciona bien). El tramo
-  // largo de scroll (.cinematic-track) también se colapsa en móvil por CSS
-  // (ver animations.css, @media (pointer: coarse)), así que acá ni siquiera
-  // hace falta escuchar el scroll: el texto y el resplandor quedan fijos,
-  // igual que en el modo de "motion reducido".
+  // Precarga todos los cuadros para que el scroll (o el loop en móvil) no
+  // tenga que esperar a que cada foto llegue por red la primera vez que se
+  // necesita. Se guardan en un arreglo para que no los borre el recolector
+  // de basura antes de que el navegador termine de bajarlos.
+  var preloaded = [];
+  if (!reduceMotion) {
+    for (var i = 1; i <= TOTAL_FRAMES; i++) {
+      var img = new Image();
+      img.src = framePath(i);
+      preloaded.push(img);
+    }
+  }
+
+  var currentFrameIndex = 1;
+  function setFrame(n) {
+    n = Math.max(1, Math.min(TOTAL_FRAMES, n));
+    if (n === currentFrameIndex && els.frame.getAttribute('src')) return;
+    currentFrameIndex = n;
+    if (els.frame) els.frame.src = framePath(n);
+  }
+
+  if (reduceMotion) {
+    cinematic.classList.add('no-motion');
+    if (els.frame) els.frame.src = framePath(TOTAL_FRAMES);
+    if (els.caption) { els.caption.style.opacity = 1; els.caption.style.transform = 'none'; }
+    if (els.glow) els.glow.style.opacity = 0.85;
+    return;
+  }
+
+  // En pantallas táctiles (celular/tablet) la secuencia se reproduce sola, en
+  // loop, en vez de ir atada al scroll — así se ve el vertido igual, sin
+  // depender de que el usuario scrollee exactamente la distancia correcta.
+  // El tramo largo de "scroll falso" (.cinematic-track) también se colapsa
+  // en móvil por CSS (ver animations.css, @media (pointer: coarse)).
   var isTouch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
 
   if (isTouch) {
     cinematic.classList.add('is-touch');
     if (els.caption) { els.caption.style.opacity = 1; els.caption.style.transform = 'none'; }
     if (els.glow) els.glow.style.opacity = 0.85;
-    if (els.video) {
-      els.video.loop = true;
-      els.video.muted = true;
-      els.video.setAttribute('muted', '');
-      attemptMobilePlay();
+    if (els.frame) {
+      var loopIndex = 1;
+      window.setInterval(function () {
+        loopIndex = (loopIndex % TOTAL_FRAMES) + 1;
+        setFrame(loopIndex);
+      }, 90);
     }
-    return;
-  }
-
-  // ---- Reproducción en móvil: a prueba de bloqueos de autoplay ----
-  // Algunos navegadores/celulares igual bloquean el autoplay silencioso (modo
-  // de ahorro de datos o batería, ajustes de "no reproducir automático",
-  // etc.), sin importar que el video venga muted+playsinline. En vez de
-  // confiar solo en que play() funcione o en reintentos silenciosos que
-  // capaz nunca se disparan con el gesto correcto, se revisa de verdad si
-  // quedó reproduciéndose; si no, aparece un botón visible sobre el video
-  // para que el usuario lo inicie con un toque directo — eso sí cuenta como
-  // gesto válido en cualquier navegador, así el video nunca queda "roto"
-  // sin ninguna forma de arrancarlo.
-  var tapToPlayBtn = null;
-  function attemptMobilePlay() {
-    var playPromise = els.video.play();
-    if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise.catch(function () {});
-    }
-    window.setTimeout(function () {
-      if (els.video.paused) showTapToPlay();
-    }, 700);
-
-    var retryOnGesture = function () {
-      els.video.play().catch(function () {});
-    };
-    window.addEventListener('touchstart', retryOnGesture, { passive: true, once: true });
-    window.addEventListener('scroll', retryOnGesture, { passive: true, once: true });
-  }
-
-  function showTapToPlay() {
-    if (tapToPlayBtn) return;
-    var art = document.querySelector('.cinematic-art-3d');
-    if (!art) return;
-    tapToPlayBtn = document.createElement('button');
-    tapToPlayBtn.type = 'button';
-    tapToPlayBtn.className = 'cinematic-tap-play';
-    tapToPlayBtn.setAttribute('aria-label', 'Reproducir video');
-    tapToPlayBtn.innerHTML = '▶ <span>Toca para reproducir</span>';
-    tapToPlayBtn.addEventListener('click', function () {
-      var p = els.video.play();
-      if (p && typeof p.then === 'function') { p.then(hideTapToPlay).catch(function () {}); }
-      else { hideTapToPlay(); }
-    });
-    art.appendChild(tapToPlayBtn);
-    els.video.addEventListener('playing', hideTapToPlay);
-  }
-
-  function hideTapToPlay() {
-    if (!tapToPlayBtn) return;
-    tapToPlayBtn.remove();
-    tapToPlayBtn = null;
-  }
-
-  if (els.video) {
-    if (els.video.readyState >= 1 && els.video.duration) {
-      onVideoMetadata();
-    } else {
-      els.video.addEventListener('loadedmetadata', onVideoMetadata);
-    }
-  }
-
-  function onVideoMetadata() {
-    videoDuration = els.video.duration || 0;
-    videoReady = videoDuration > 0;
-    // Truco para Safari/iOS: sin un play() (aunque sea silencioso e inmediatamente
-    // pausado), el navegador no decodifica cuadros al mover currentTime a mano.
-    var playAttempt = els.video.play();
-    if (playAttempt && typeof playAttempt.then === 'function') {
-      playAttempt.then(function () { els.video.pause(); }).catch(function () {
-        // Autoplay bloqueado: igual intentamos fijar currentTime más abajo.
-      });
-    } else {
-      els.video.pause();
-    }
-    if (reduceMotion) {
-      setStaticState();
-    } else {
-      onScroll();
-    }
-  }
-
-  if (reduceMotion) {
-    cinematic.classList.add('no-motion');
-    setStaticState();
     return;
   }
 
@@ -170,15 +119,11 @@
   }
 
   function applyFrame(p) {
-    if (els.video && videoReady) {
-      // El vertido "ocupa" el primer ~85% del progreso de la sección; el resto
-      // sostiene el último cuadro (vaso listo) mientras aparece el texto.
-      var videoProgress = clamp(p / 0.85, 0, 1);
-      var targetTime = videoProgress * videoDuration;
-      if (Math.abs(els.video.currentTime - targetTime) > 0.03) {
-        try { els.video.currentTime = targetTime; } catch (e) { /* seek aún no listo */ }
-      }
-    }
+    // El vertido "ocupa" el primer ~85% del progreso de la sección; el resto
+    // sostiene el último cuadro (vaso listo) mientras aparece el texto.
+    var pourProgress = clamp(p / 0.85, 0, 1);
+    var frameIndex = Math.round(pourProgress * (TOTAL_FRAMES - 1)) + 1;
+    setFrame(frameIndex);
 
     if (els.caption) {
       var tCap = easeOutCubic(phase(p, PHASES.caption[0], PHASES.caption[1]));
@@ -187,15 +132,7 @@
     }
 
     if (els.glow) {
-      els.glow.style.opacity = lerp(0.55, 1, easeInOutQuad(clamp(p / 0.85, 0, 1)));
-    }
-  }
-
-  function setStaticState() {
-    if (els.caption) { els.caption.style.opacity = 1; els.caption.style.transform = 'none'; }
-    if (els.glow) els.glow.style.opacity = 0.85;
-    if (els.video && videoReady) {
-      try { els.video.currentTime = videoDuration; } catch (e) { /* noop */ }
+      els.glow.style.opacity = lerp(0.55, 1, easeInOutQuad(pourProgress));
     }
   }
 
